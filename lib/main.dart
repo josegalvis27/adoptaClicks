@@ -1,78 +1,7 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-void main() {
-  runApp(AdoptaClickApp());
-}
-
-class AdoptaClickApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AdoptaClick',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        scaffoldBackgroundColor: Colors.orange.shade50,
-        textTheme: Typography.blackCupertino.copyWith(
-          titleLarge: TextStyle(fontWeight: FontWeight.bold),
-          bodyMedium: TextStyle(fontSize: 16),
-        ),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LoginPage(),
-        '/ads': (context) => AdsPage(),
-      },
-    );
-  }
-}
-
-class LoginPage extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Bienvenido a AdoptaClick')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Conéctate y ayuda a encontrar un hogar 🐾',
-                style: Theme.of(context).textTheme.titleLarge,
-                
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  labelText: 'Coloca tu correo.',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (_controller.text.isNotEmpty) {
-                    Navigator.pushNamed(context, '/ads');
-                  }
-                },
-                icon: Icon(Icons.pets),
-                label: Text('Entrar al portal'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class AdsPage extends StatefulWidget {
   @override
@@ -80,21 +9,41 @@ class AdsPage extends StatefulWidget {
 }
 
 class _AdsPageState extends State<AdsPage> {
-  String adImageUrl = 'https://via.placeholder.com/320x250.png?text=Anuncio+Inicial';
+  String adImageUrl = '';
   int clickCount = 0;
+  String dogName = '';
+  int dogAge = 0;
+  String dogGender = '';
+
+final List<String> dogNames = [
+  'Max', 'Bella', 'Charlie', 'Luna', 'Rocky', 'Lucy', 'Cooper', 'Daisy',
+  'Buddy', 'Molly', 'Jack', 'Sadie', 'Toby', 'Chloe', 'Duke', 'Lola',
+  'Bear', 'Zoey', 'Bentley', 'Stella', 'Oliver', 'Penny', 'Leo', 'Roxy',
+  'Oscar', 'Sasha', 'Zeus', 'Ruby', 'Bruno', 'Ginger', 'Thor', 'Nala',
+  'Rex', 'Maya', 'Simba', 'Abby', 'Milo', 'Hazel', 'Bailey', 'Maggie',
+  'Finn', 'Ellie', 'Riley', 'Coco', 'Diesel', 'Athena', 'Shadow', 'Pepper',
+  'Murphy', 'Izzy', 'Tank', 'Zara', 'Cash', 'Rosie', 'Jax', 'Belle',
+  'Sam', 'Bonnie', 'Archie', 'Honey', 'Louie', 'Gracie', 'Henry', 'Layla',
+  'Chester', 'Trixie', 'Buster', 'Millie', 'Boomer', 'Lilly', 'Apollo', 'Nova',
+];
+
+  final List<String> genders = ['Macho', 'Hembra'];
 
   @override
   void initState() {
     super.initState();
-    _fetchAdImage();
+    _fetchAdData();
   }
 
-  Future<void> _fetchAdImage() async {
+  Future<void> _fetchAdData() async {
     final response = await http.get(Uri.parse('https://dog.ceo/api/breeds/image/random'));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
         adImageUrl = data['message'];
+        dogName = dogNames[Random().nextInt(dogNames.length)];
+        dogAge = Random().nextInt(15) + 1; // Edad entre 1 y 15
+        dogGender = genders[Random().nextInt(genders.length)];
       });
     }
   }
@@ -103,17 +52,19 @@ class _AdsPageState extends State<AdsPage> {
     setState(() {
       clickCount++;
     });
-    _fetchAdImage();
+    _fetchAdData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('AdoptaClick - Anuncios')),
+      appBar: AppBar(
+        title: Text('AdoptaClick - Anuncios'),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Text('Haz clic en el anuncio para ver otro perrito 🐶'),
             SizedBox(height: 20),
             InkWell(
@@ -130,12 +81,19 @@ class _AdsPageState extends State<AdsPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        adImageUrl,
-                        width: 320,
-                        height: 250,
-                        fit: BoxFit.cover,
-                      ),
+                      child: adImageUrl.isNotEmpty
+                          ? Image.network(
+                              adImageUrl,
+                              width: 320,
+                              height: 250,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 320,
+                              height: 250,
+                              color: Colors.grey[300],
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
                     ),
                     Positioned(
                       bottom: 10,
@@ -158,6 +116,19 @@ class _AdsPageState extends State<AdsPage> {
                   ],
                 ),
               ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Nombre: $dogName',
+              style: TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Edad: $dogAge años',
+              style: TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Sexo: $dogGender',
+              style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
             Text('Clics registrados: $clickCount'),
