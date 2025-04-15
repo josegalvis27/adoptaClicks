@@ -46,12 +46,13 @@ class LoginPage extends StatelessWidget {
               Text(
                 'Conéctate y ayuda a encontrar un hogar 🐾',
                 style: Theme.of(context).textTheme.titleLarge,
+                
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  labelText: 'Tu nombre',
+                  labelText: 'Coloca tu correo.',
                   border: OutlineInputBorder(),
                 ),
               ),
