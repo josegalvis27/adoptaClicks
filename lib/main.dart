@@ -1,7 +1,78 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(AdoptaClickApp());
+}
+
+class AdoptaClickApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'AdoptaClick',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+        scaffoldBackgroundColor: Colors.orange.shade50,
+        textTheme: Typography.blackCupertino.copyWith(
+          titleLarge: TextStyle(fontWeight: FontWeight.bold),
+          bodyMedium: TextStyle(fontSize: 16),
+        ),
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginPage(),
+        '/ads': (context) => AdsPage(),
+      },
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Bienvenido a AdoptaClick')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Conéctate y ayuda a encontrar un hogar 🐾',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  labelText: 'Coloca tu correo.',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  if (_controller.text.isNotEmpty) {
+                    Navigator.pushNamed(context, '/ads');
+                  }
+                },
+                icon: Icon(Icons.pets),
+                label: Text('Entrar al portal'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class AdsPage extends StatefulWidget {
   @override
@@ -9,23 +80,23 @@ class AdsPage extends StatefulWidget {
 }
 
 class _AdsPageState extends State<AdsPage> {
-  String adImageUrl = '';
+  String adImageUrl = 'https://via.placeholder.com/320x250.png?text=Anuncio+Inicial';
   int clickCount = 0;
   String dogName = '';
   int dogAge = 0;
   String dogGender = '';
 
-final List<String> dogNames = [
-  'Max', 'Bella', 'Charlie', 'Luna', 'Rocky', 'Lucy', 'Cooper', 'Daisy',
-  'Buddy', 'Molly', 'Jack', 'Sadie', 'Toby', 'Chloe', 'Duke', 'Lola',
-  'Bear', 'Zoey', 'Bentley', 'Stella', 'Oliver', 'Penny', 'Leo', 'Roxy',
-  'Oscar', 'Sasha', 'Zeus', 'Ruby', 'Bruno', 'Ginger', 'Thor', 'Nala',
-  'Rex', 'Maya', 'Simba', 'Abby', 'Milo', 'Hazel', 'Bailey', 'Maggie',
-  'Finn', 'Ellie', 'Riley', 'Coco', 'Diesel', 'Athena', 'Shadow', 'Pepper',
-  'Murphy', 'Izzy', 'Tank', 'Zara', 'Cash', 'Rosie', 'Jax', 'Belle',
-  'Sam', 'Bonnie', 'Archie', 'Honey', 'Louie', 'Gracie', 'Henry', 'Layla',
-  'Chester', 'Trixie', 'Buster', 'Millie', 'Boomer', 'Lilly', 'Apollo', 'Nova',
-];
+  final List<String> dogNames = [
+    'Max', 'Bella', 'Charlie', 'Luna', 'Rocky', 'Lucy', 'Cooper', 'Daisy',
+    'Buddy', 'Molly', 'Jack', 'Sadie', 'Toby', 'Chloe', 'Duke', 'Lola',
+    'Bear', 'Zoey', 'Bentley', 'Stella', 'Oliver', 'Penny', 'Leo', 'Roxy',
+    'Oscar', 'Sasha', 'Zeus', 'Ruby', 'Bruno', 'Ginger', 'Thor', 'Nala',
+    'Rex', 'Maya', 'Simba', 'Abby', 'Milo', 'Hazel', 'Bailey', 'Maggie',
+    'Finn', 'Ellie', 'Riley', 'Coco', 'Diesel', 'Athena', 'Shadow', 'Pepper',
+    'Murphy', 'Izzy', 'Tank', 'Zara', 'Cash', 'Rosie', 'Jax', 'Belle',
+    'Sam', 'Bonnie', 'Archie', 'Honey', 'Louie', 'Gracie', 'Henry', 'Layla',
+    'Chester', 'Trixie', 'Buster', 'Millie', 'Boomer', 'Lilly', 'Apollo', 'Nova',
+  ];
 
   final List<String> genders = ['Macho', 'Hembra'];
 
@@ -42,7 +113,7 @@ final List<String> dogNames = [
       setState(() {
         adImageUrl = data['message'];
         dogName = dogNames[Random().nextInt(dogNames.length)];
-        dogAge = Random().nextInt(15) + 1; // Edad entre 1 y 15
+        dogAge = Random().nextInt(15) + 1;
         dogGender = genders[Random().nextInt(genders.length)];
       });
     }
@@ -58,13 +129,11 @@ final List<String> dogNames = [
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('AdoptaClick - Anuncios'),
-      ),
+      appBar: AppBar(title: Text('AdoptaClick - Anuncios')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             Text('Haz clic en el anuncio para ver otro perrito 🐶'),
             SizedBox(height: 20),
             InkWell(
@@ -81,19 +150,12 @@ final List<String> dogNames = [
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: adImageUrl.isNotEmpty
-                          ? Image.network(
-                              adImageUrl,
-                              width: 320,
-                              height: 250,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: 320,
-                              height: 250,
-                              color: Colors.grey[300],
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
+                      child: Image.network(
+                        adImageUrl,
+                        width: 320,
+                        height: 250,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Positioned(
                       bottom: 10,
@@ -118,18 +180,9 @@ final List<String> dogNames = [
               ),
             ),
             SizedBox(height: 20),
-            Text(
-              'Nombre: $dogName',
-              style: TextStyle(fontSize: 16),
-            ),
-            Text(
-              'Edad: $dogAge años',
-              style: TextStyle(fontSize: 16),
-            ),
-            Text(
-              'Sexo: $dogGender',
-              style: TextStyle(fontSize: 16),
-            ),
+            Text('Nombre: $dogName'),
+            Text('Edad: $dogAge años'),
+            Text('Sexo: $dogGender'),
             SizedBox(height: 20),
             Text('Clics registrados: $clickCount'),
           ],
