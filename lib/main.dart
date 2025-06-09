@@ -141,7 +141,7 @@ class _AdsPageState extends State<AdsPage> {
               child: Container(
                 width: 320,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.orange, width: 3),
+                  border: Border.all(color: Colors.greenAccent, width: 3),
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
                 ),
