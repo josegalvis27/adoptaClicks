@@ -16,7 +16,7 @@ class AdoptaClickApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        scaffoldBackgroundColor: Colors.orange.shade50,
+        scaffoldBackgroundColor: Colors.blue,
         textTheme: Typography.blackCupertino.copyWith(
           titleLarge: TextStyle(fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(fontSize: 16),
@@ -37,12 +37,12 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Bienvenido a AdoptaClick')),
+      appBar: AppBar(title: Text('Bienvenido a AdoptaClick.com')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 'Conéctate y ayuda a encontrar un hogar 🐾',
