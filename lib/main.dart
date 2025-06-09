@@ -129,7 +129,7 @@ class _AdsPageState extends State<AdsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('AdoptaClick - Anuncios')),
+      appBar: AppBar(title: Text(' HOLA CLASE DEL SAMUEL')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
