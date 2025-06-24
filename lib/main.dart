@@ -1,6 +1,6 @@
+
 import 'dart:convert';
 import 'dart:math';
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,7 +16,7 @@ class AdoptaClickApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        scaffoldBackgroundColor: Colors.blue,
+        scaffoldBackgroundColor: Colors.blue.shade50,
         textTheme: Typography.blackCupertino.copyWith(
           titleLarge: TextStyle(fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(fontSize: 16),
@@ -24,9 +24,40 @@ class AdoptaClickApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginPage(),
+        '/': (context) => HomePage(),
+        '/login': (context) => LoginPage(),
         '/ads': (context) => AdsPage(),
       },
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('🐾 Bienvenido a AdoptaClick 🐾',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              SizedBox(height: 20),
+              Text(
+                'Una plataforma para conectar perros sin hogar con nuevos amigos humanos.',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, '/login'),
+                child: Text('Ingresar'),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -100,6 +131,10 @@ class _AdsPageState extends State<AdsPage> {
 
   final List<String> genders = ['Macho', 'Hembra'];
 
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _messageCtrl = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -119,10 +154,11 @@ class _AdsPageState extends State<AdsPage> {
     }
   }
 
-  void _onAdClick() {
+  void _onAdClick() async {
     setState(() {
       clickCount++;
     });
+    await Future.delayed(Duration(milliseconds: 300));
     _fetchAdData();
   }
 
@@ -130,62 +166,114 @@ class _AdsPageState extends State<AdsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(' HOLA CLASE DEL SAMUEL')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            Text('Haz clic en el anuncio para ver otro perrito 🐶'),
-            SizedBox(height: 20),
-            InkWell(
-              onTap: _onAdClick,
-              child: Container(
-                width: 320,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.greenAccent, width: 3),
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        adImageUrl,
-                        width: 320,
-                        height: 250,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(20),
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.orange),
+              child: Text('Menú', style: TextStyle(fontSize: 24, color: Colors.white)),
+            ),
+            ListTile(
+              title: Text('Inicio'),
+              onTap: () => Navigator.pushNamed(context, '/'),
+            ),
+            ListTile(
+              title: Text('Adopciones'),
+              onTap: () => Navigator.pushNamed(context, '/ads'),
+            ),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: Center(
+          child: Column(
+            children: [
+              Text('Haz clic en el anuncio para ver otro perrito 🐶'),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: _onAdClick,
+                child: Container(
+                  width: 320,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.greenAccent, width: 3),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          adImageUrl,
+                          width: 320,
+                          height: 250,
+                          fit: BoxFit.cover,
                         ),
-                        child: Text(
-                          '¡Adóptame!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '¡Adóptame!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text('Nombre: $dogName'),
+              Text('Edad: $dogAge años'),
+              Text('Sexo: $dogGender'),
+              SizedBox(height: 20),
+              Text('Clics registrados: $clickCount'),
+              SizedBox(height: 30),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Text('Contáctanos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    TextFormField(
+                      controller: _nameCtrl,
+                      decoration: InputDecoration(labelText: 'Tu nombre'),
+                      validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
+                    ),
+                    TextFormField(
+                      controller: _messageCtrl,
+                      decoration: InputDecoration(labelText: 'Mensaje'),
+                      maxLines: 3,
+                      validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
+                    ),
+                    SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Mensaje enviado correctamente')),
+                          );
+                        }
+                      },
+                      child: Text('Enviar'),
                     ),
                   ],
                 ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Text('Nombre: $dogName'),
-            Text('Edad: $dogAge años'),
-            Text('Sexo: $dogGender'),
-            SizedBox(height: 20),
-            Text('Clics registrados: $clickCount'),
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
